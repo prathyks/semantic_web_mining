@@ -7,3 +7,5 @@ conn = SQLConnect.mysql_connect();
 count = SQLFunctions.getUserCount(conn);
 print(count)
 
+cur = SQLFunctions.selectUserTable(conn)
+SQLFunctions.getNextUser(cur)
