@@ -12,8 +12,8 @@ def mysql_close(con):
 def mysql_execute(conn, query):
     cur = conn.cursor();
     cur.execute(query)
-    cur.close();
-    conn.commit();
+    cur.close()
+    conn.commit()
     return conn
 
 def mysql_select_query(conn, query):
