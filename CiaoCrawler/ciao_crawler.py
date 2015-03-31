@@ -14,19 +14,18 @@ logging.basicConfig(filename='crawler.log', level=logging.WARN)
 
 
 def crawl_ciao():
-    list_users = []
-    temp_list = get_latest_reviewer_list()
-    for x in temp_list:
-        list_users.append(x)
-    temp_list = MostPopularUsers.pop_and_recent_users()
-    for x in temp_list:
-        list_users.append(x)
-    print("final_list:"+str(len(list_users)))
-    for new_id in list_users:
-        conn = SQLConnect.mysql_connect()
-        if SQLFunctions.does_user_exists(conn, new_id[1]) is True:
-            SQLConnect.mysql_close(conn)
-            print(str(new_id[1])+" alredy exists")
+    member_id = [('richada','5515635')]
+    membersToInsert = []
+    total = 50000
+    countInserted = 0
+    user_iterate = 0
+    while countInserted < total:
+        url = 'http://www.ciao.co.uk/member_view.php/MemberId/' + member_id[user_iterate][1] + '/TabId/5'
+        try:
+            source_code = requests.get(url)
+            time.sleep(2)
+        except ConnectionError as e:
+            print(e)
             continue
         SQLConnect.mysql_close(conn)
         if is_valid_user(new_id[1]) is None:
@@ -140,25 +139,85 @@ def is_valid_user(user_id):
         return None
 
 
-def get_latest_reviewer_list():
-    list_users = []
-    for x in range(1, 8):
-        index = (x-1) * 15
-        url = "http://www.ciao.co.uk/Recent_Reviews/Start/"+str(index)
-        print(url)
-        source_code = requests.get(url).text
-        soup_obj = BeautifulSoup(source_code)
-        rev_links = soup_obj.find_all('a', {'class': 'review', 'by': ""})
-        links = []
-        for review_url in rev_links:
-            links.append(review_url['href'])
-        for review_url in links:
-            source_code = requests.get(review_url).text
-            soup_obj = BeautifulSoup(source_code)
-            content = soup_obj.find('div', {'id': 'OH_BingUserInfo'}).find('a', {'class': 'black'})
-            user_id = content['href'].split("_")[-1]
-            user_name = content['title']
-            list_users.append((user_name, user_id))
-    return list_users
+#crawl_ciao()
 
-crawl_ciao()
+def ciao_user_buddy_info():
+    conn = SQLConnect.mysql_connect()
+    cur = SQLFunctions.selectUserTable(conn)
+    user_count = SQLFunctions.getUserCount(conn)
+    #user_count = 10
+    i=0
+    user_info = SQLFunctions.getNextUser(cur)
+    while i< user_count:
+        #print(user_info)
+        url = 'http://www.ciao.co.uk/member_view.php/MemberId/' + str(user_info[0]) + '/TabId/5'
+        try:
+            source_code = requests.get(url)
+            time.sleep(2)
+        except ConnectionError as e:
+            print(e)
+            continue
+        except ConnectionResetError as e:
+            print(e)
+            continue
+        plain_text = source_code.text
+        #print(plain_text)
+        soup_obj = BeautifulSoup(plain_text)
+        count = 0
+        for_trusted_link = 0
+        tr_tag = soup_obj.find('tr', {'id':'member_details_trusted_by'})
+
+        # Get the number of users trusted by
+        try:
+            num_of_trusted = int(tr_tag.contents[3].contents[0].split(' ',1)[0])
+        except AttributeError as e:
+            print(e)
+            user_info = SQLFunctions.getNextUser(cur)
+            i=i+1
+            continue
+
+        while num_of_trusted > 0:
+            for a_tags in soup_obj.find_all('a', href=True):
+                a_href = a_tags['href']
+                match = re.search(r'http://www.ciao.co.uk/Member__*', a_href)
+                if match:
+                    #count=count+1
+                    name_id = a_href.split('__',1)[1].rsplit('_',1)
+                    name_id[0] = name_id[0].lower()
+                    #name_id = tuple(name_id)
+                    #member_id.append(name_id)
+                    #membersToInsert.append(name_id);
+                    #print(name_id)
+                    if int(user_info[0]) != int(name_id[1]):
+                        SQLFunctions.add_user_buddy(conn,str(user_info[0]),user_info[1],str(name_id[1]),name_id[0])
+            if(num_of_trusted > 15):
+                for_trusted_link = for_trusted_link + 15
+                url = 'http://www.ciao.co.uk/member_view.php/MemberId/' + str(user_info[0]) + '/TabId/5/Start/' + str(for_trusted_link)
+                try:
+                    source_code = requests.get(url)
+                    time.sleep(2)
+                except ConnectionError as e:
+                    print(e)
+                    continue
+                except ConnectionResetError as e:
+                    print(e)
+                    continue
+                plain_text = source_code.text
+                #count = count+1
+                #print(count)
+                soup_obj = BeautifulSoup(plain_text)
+            num_of_trusted = num_of_trusted - 15
+
+        user_info = SQLFunctions.getNextUser(cur)
+        i=i+1
+    SQLConnect.mysql_close(conn)
+
+ciao_user_buddy_info()
+
+def test_func():
+    one_array = [('hello', 'world')]
+    f = open('output.txt','w')
+    f.write("%s," %one_array[0][0])
+    f.write("%s\n" %one_array[0][1])
+    f.close()
+#test_func()

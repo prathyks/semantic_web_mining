@@ -2,7 +2,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 def mysql_connect():
-    conn = pymysql.connect(host='localhost', port=3306, user='ciao', passwd='pass123', db='ciao');
+    conn = pymysql.connect(host='localhost', port=3306, db='ciao', password='pass123', user='ciao');
     return conn
 
 def mysql_close(con):
