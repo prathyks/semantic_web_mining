@@ -44,7 +44,7 @@ def getUserCount(conn):
     cur.close()
     return count
 
-<<<<<<< HEAD
+
 
 def does_user_exists(conn, user_id):
     query = "select id from userinfo where id = "+str(user_id)
@@ -99,7 +99,7 @@ def update_scanned(conn, user_id):
     query = "update userinfo set scanned=TRUE where id="+str(user_id)
     SQLConnect.mysql_execute(conn, query)
     return
-=======
+
 def selectUserTable(conn):
     query = "select * from userinfo;"
     cur = SQLConnect.mysql_select_query(conn,query)
@@ -123,4 +123,4 @@ def add_product(conn,id,name,category,s_category):
     cur=conn.cursor()
     cur.execute("insert into product values("+id+",'"+name+"','"+category+"','"+s_category+"')")
     cur.execute('commit')
->>>>>>> f4cdc1eae809c660dca75e626d624c5808fe4291
+
