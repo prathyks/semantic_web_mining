@@ -47,17 +47,27 @@ select count(1) from review_dump; # 179259
 
 select count(1) from review;
 
-delete from review
-where product_id not in (select prod_id from product) # 69943 rows deleted
+insert into review
+select * from review_dump
+where product_id in (select prod_id from product) # 69943 rows deleted
 
 select * from product limit 5;
 
+use ciao;
+
+delete from review;
+
+select count(1) from review_dump;
 
 use ciao;
 
 select count(1) from product; # 70341
+
+# SET SQL_SAFE_UPDATES = 0;
+
 /*
 delete
+# select count(1)
 from product
 where product_subcategory in (
 'Sky Travel',
@@ -266,5 +276,7 @@ where product_subcategory in (
 'Electrolysis'
 ) ; # 44314
 */
+
+
 
 select count(1) from userinfo

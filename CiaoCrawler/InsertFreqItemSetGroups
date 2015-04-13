@@ -1,0 +1,22 @@
+import Sql_Connection
+import SQLFunctions
+import pymysql
+import SQLConnect
+pymysql.install_as_MySQLdb()
+
+conn = Sql_Connection.mysql_connect()
+Sql_Connection.create_review(conn)
+file = open('C:\\Users\\Sribhagat\\Google Drive\\ASU\\Semantic Web Mining\\Project\\GIT\\ItemSets\\ciao_output3_apriori', 'r')
+i = 1
+for line in file:
+    row = file.readline()
+    print(str(i) + ".) " + row)
+    # print(row.split())
+    data = row.split()
+    for x in data:
+        if(x!='#SUP:' and x != data[-1]):
+            query = 'insert into Groups_sup3_apriori values ('+str(i)+','+x+','+data[-1]+');'
+            print(query)
+            SQLConnect.mysql_execute(conn, query)
+            # print(str(i)+ " "+ x + " " + data[-1])
+    i=i+1
