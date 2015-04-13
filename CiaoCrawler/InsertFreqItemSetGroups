@@ -13,9 +13,11 @@ for line in file:
     print(str(i) + ".) " + row)
     # print(row.split())
     data = row.split()
+    j = 1;
     for x in data:
         if(x!='#SUP:' and x != data[-1]):
-            query = 'insert into Groups_sup3_apriori values ('+str(i)+','+x+','+data[-1]+');'
+            query = 'insert into groups_sup3_apriori values ('+str(i)+','+ str(j) +','+x+','+data[-1]+');'
+            j = j + 1
             print(query)
             SQLConnect.mysql_execute(conn, query)
             # print(str(i)+ " "+ x + " " + data[-1])

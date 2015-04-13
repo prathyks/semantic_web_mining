@@ -49,7 +49,7 @@ select count(1) from review;
 
 insert into review
 select * from review_dump
-where product_id in (select prod_id from product) # 69943 rows deleted
+where product_id in (select prod_id from product); # 69943 rows deleted
 
 select * from product limit 5;
 
