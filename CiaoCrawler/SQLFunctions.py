@@ -124,3 +124,12 @@ def add_product(conn,id,name,category,s_category):
     cur.execute("insert into product values("+id+",'"+name+"','"+category+"','"+s_category+"')")
     cur.execute('commit')
 
+def get_products_of_given_userid(conn, user_id):
+    query = "select product_id from review where user_id="+user_id
+    cur = SQLConnect.mysql_select_query(conn,query)
+    return list(cur.fetchall())
+
+def get_reviews_of_given_user_product(conn,user_id,product_id):
+    query = "select review_content from review where user_id="+user_id+" and product_id="+product_id
+    cur = SQLConnect.mysql_select_query(conn,query)
+    return list(cur.fetchall())
